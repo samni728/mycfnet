@@ -1,0 +1,142 @@
+{{define "index.html"}}
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>mycfnet</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Cloudflare IP Scanner</p>
+        <h1>mycfnet</h1>
+        <p class="lede">扫描候选 Cloudflare IP，解析 `CF-RAY` 数据中心，结果持久化到 SQLite，并支持导出给 VLESS / VMess 使用。</p>
+      </div>
+      <div class="stats">
+        <div><span>活跃 IP</span><strong>{{.ActiveCount}}</strong></div>
+        <div><span>最近任务</span><strong>{{len .Jobs}}</strong></div>
+        <div><span>候选文件</span><strong>{{len .Candidates}}</strong></div>
+      </div>
+    </section>
+
+    {{if .Notice}}<section class="notice">{{.Notice}}</section>{{end}}
+
+    <section class="panel">
+      <h2>启动扫描</h2>
+      <form method="post" action="/scan" class="grid">
+        <label>候选文件
+          <input name="candidates_path" value="{{.Config.DefaultCandidatesPath}}" list="candidate-files">
+        </label>
+        <label>域名
+          <input name="domain" value="{{.Config.DefaultDomain}}">
+        </label>
+        <label>路径
+          <input name="path" value="{{.Config.DefaultPath}}">
+        </label>
+        <label>端口
+          <input name="port" type="number" value="{{.Config.DefaultPort}}">
+        </label>
+        <label>并发
+          <input name="concurrency" type="number" value="{{.Config.DefaultConcurrency}}">
+        </label>
+        <label>超时(ms)
+          <input name="timeout_ms" type="number" value="{{.Config.DefaultTimeoutMS}}">
+        </label>
+        <label>最大延迟(ms)
+          <input name="max_latency_ms" type="number" value="{{.Config.DefaultMaxLatencyMS}}">
+        </label>
+        <label>采样数
+          <input name="sample_size" type="number" value="{{.Config.DefaultSampleSize}}">
+        </label>
+        <label>CIDR 采样
+          <input name="samples_per_cidr" type="number" value="{{.Config.DefaultSamplesPerCIDR}}">
+        </label>
+        <label>预期状态码
+          <input name="expected_status" type="number" value="200">
+        </label>
+        <label>筛选 colo
+          <input name="allowed_colos" placeholder="HKG,SJC,FRA">
+        </label>
+        <label class="checkbox">
+          <input name="use_tls" type="checkbox" {{if .Config.DefaultUseTLS}}checked{{end}}>
+          使用 TLS
+        </label>
+        <button type="submit">开始扫描</button>
+      </form>
+      <datalist id="candidate-files">
+        {{range .Candidates}}<option value="{{.}}">{{.}}</option>{{end}}
+      </datalist>
+    </section>
+
+    <section class="split">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>结果</h2>
+          <div class="actions">
+            <a href="/export.csv?active=true">导出 CSV</a>
+            <a href="/export.txt?active=true">导出 TXT</a>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>IP</th>
+              <th>地区</th>
+              <th>colo</th>
+              <th>延迟</th>
+              <th>状态</th>
+              <th>最后检测</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{range .Results}}
+            <tr class="{{if .Active}}ok{{else}}fail{{end}}">
+              <td><code>{{.IP}}:{{.Port}}</code></td>
+              <td>{{if .City}}{{.City}}{{else}}-{{end}}</td>
+              <td>{{if .Colo}}{{.Colo}}{{else}}-{{end}}</td>
+              <td>{{.LatencyMS}} ms</td>
+              <td>{{if .Active}}HTTP {{.HTTPStatus}}{{else}}{{.LastError}}{{end}}</td>
+              <td>{{since .LastSeenAt}}</td>
+            </tr>
+            {{else}}
+            <tr><td colspan="6">暂无数据</td></tr>
+            {{end}}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel">
+        <h2>任务</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>状态</th>
+              <th>筛选</th>
+              <th>进度</th>
+              <th>开始时间</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{range .Jobs}}
+            <tr>
+              <td>#{{.ID}}</td>
+              <td>{{.Status}}</td>
+              <td>{{if .AllowedColos}}{{join .AllowedColos ","}}{{else}}all{{end}}</td>
+              <td>{{.Processed}} / {{.TotalCandidates}} (ok {{.SuccessCount}})</td>
+              <td>{{since .StartedAt}}</td>
+            </tr>
+            {{else}}
+            <tr><td colspan="5">暂无任务</td></tr>
+            {{end}}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
+{{end}}
