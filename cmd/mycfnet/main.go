@@ -19,7 +19,7 @@ func main() {
 
 	_ = godotenv.Load()
 
-	flag.StringVar(&cfg.ListenAddr, "listen", ":8080", "HTTP listen address")
+	flag.StringVar(&cfg.ListenAddr, "listen", envString("MYCFNET_LISTEN_ADDR", ":8080"), "HTTP listen address")
 	flag.StringVar(&cfg.DBPath, "db", "data/mycfnet.db", "SQLite database path")
 	flag.StringVar(&cfg.LocationsPath, "locations", "data/locations.json", "locations metadata file")
 	flag.StringVar(&cfg.DefaultCandidatesPath, "candidates", "data/ips-v4.txt", "default candidate list file")

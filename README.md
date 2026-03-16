@@ -48,11 +48,12 @@ cp .env.example .env
 然后填写：
 
 ```env
+MYCFNET_LISTEN_ADDR=:8080
 MYCFNET_ADMIN_USER=admin
 MYCFNET_ADMIN_PASS=change-this-password
 ```
 
-重新启动后，除 `/healthz` 外的页面和导出接口都会启用 HTTP Basic Auth。
+重新启动后，服务会监听你配置的地址和端口；除 `/healthz` 外的页面和导出接口都会启用 HTTP Basic Auth。
 
 ## 默认参数
 
