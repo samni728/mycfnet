@@ -1,3 +1,6 @@
-data/
+data/*
 !data/.gitkeep
+!data/locations.json
+!data/ips-v4.txt
+!data/ips-v6.txt
 /mycfnet
