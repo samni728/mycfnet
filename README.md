@@ -16,10 +16,6 @@
 ## 快速开始
 
 ```bash
-mkdir -p data
-cp /path/to/locations.json data/locations.json
-cp /path/to/ips-v4.txt data/ips-v4.txt
-
 go mod tidy
 go run ./cmd/mycfnet
 ```
