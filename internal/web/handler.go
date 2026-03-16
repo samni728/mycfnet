@@ -2,6 +2,7 @@ package web
 
 import (
 	"context"
+	"crypto/subtle"
 	"encoding/csv"
 	"fmt"
 	"html/template"
@@ -29,6 +30,8 @@ type Config struct {
 	DefaultSampleSize     int
 	DefaultSamplesPerCIDR int
 	DefaultUseTLS         bool
+	AdminUser             string
+	AdminPass             string
 }
 
 type Dependencies struct {
@@ -81,7 +84,7 @@ func (h *Handler) Routes() http.Handler {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte("ok"))
 	})
-	return mux
+	return h.withAuth(mux)
 }
 
 func (h *Handler) handleIndex(w http.ResponseWriter, r *http.Request) {
@@ -327,4 +330,25 @@ func splitCSV(v string) []string {
 		}
 	}
 	return out
+}
+
+func (h *Handler) withAuth(next http.Handler) http.Handler {
+	if h.cfg.AdminUser == "" || h.cfg.AdminPass == "" {
+		return next
+	}
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/healthz" {
+			next.ServeHTTP(w, r)
+			return
+		}
+		user, pass, ok := r.BasicAuth()
+		if ok &&
+			subtle.ConstantTimeCompare([]byte(user), []byte(h.cfg.AdminUser)) == 1 &&
+			subtle.ConstantTimeCompare([]byte(pass), []byte(h.cfg.AdminPass)) == 1 {
+			next.ServeHTTP(w, r)
+			return
+		}
+		w.Header().Set("WWW-Authenticate", `Basic realm="mycfnet"`)
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+	})
 }

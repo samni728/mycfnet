@@ -33,6 +33,8 @@ type Config struct {
 	DefaultSampleSize     int
 	DefaultSamplesPerCIDR int
 	DefaultUseTLS         bool
+	AdminUser             string
+	AdminPass             string
 }
 
 type App struct {
@@ -93,6 +95,8 @@ func New(cfg Config) (*App, error) {
 			DefaultSampleSize:     cfg.DefaultSampleSize,
 			DefaultSamplesPerCIDR: cfg.DefaultSamplesPerCIDR,
 			DefaultUseTLS:         cfg.DefaultUseTLS,
+			AdminUser:             cfg.AdminUser,
+			AdminPass:             cfg.AdminPass,
 		},
 		Templates: tpl,
 		StaticFS:  staticFS,

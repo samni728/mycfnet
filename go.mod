@@ -2,7 +2,10 @@ module github.com/samni728/mycfnet
 
 go 1.25.6
 
-require modernc.org/sqlite v1.46.1
+require (
+	github.com/joho/godotenv v1.5.1
+	modernc.org/sqlite v1.46.1
+)
 
 require (
 	github.com/dustin/go-humanize v1.0.1 // indirect

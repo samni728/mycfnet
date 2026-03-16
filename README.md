@@ -35,6 +35,25 @@ chmod +x scripts/import_assets.sh
 
 - [http://127.0.0.1:8080](http://127.0.0.1:8080)
 
+## Web UI 认证
+
+项目支持通过 `.env` 配置 Web UI 管理员账号密码。未配置时，Web UI 默认不启用认证。
+
+先复制示例文件：
+
+```bash
+cp .env.example .env
+```
+
+然后填写：
+
+```env
+MYCFNET_ADMIN_USER=admin
+MYCFNET_ADMIN_PASS=change-this-password
+```
+
+重新启动后，除 `/healthz` 外的页面和导出接口都会启用 HTTP Basic Auth。
+
 ## 默认参数
 
 - 候选文件：`data/ips-v4.txt`
