@@ -177,9 +177,13 @@ FROM scan_jobs ORDER BY id DESC LIMIT ?`, limit)
 	for rows.Next() {
 		var item Job
 		var allowed string
+		var finishedAt sql.NullTime
 		if err := rows.Scan(&item.ID, &item.Status, &item.CandidatesPath, &item.Domain, &item.Path, &item.Port, &item.UseTLS,
-			&allowed, &item.StartedAt, &item.FinishedAt, &item.TotalCandidates, &item.Processed, &item.SuccessCount, &item.LastError); err != nil {
+			&allowed, &item.StartedAt, &finishedAt, &item.TotalCandidates, &item.Processed, &item.SuccessCount, &item.LastError); err != nil {
 			return nil, err
+		}
+		if finishedAt.Valid {
+			item.FinishedAt = finishedAt.Time
 		}
 		item.AllowedColos = splitCSV(allowed)
 		out = append(out, item)
