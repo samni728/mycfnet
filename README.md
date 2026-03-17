@@ -83,12 +83,29 @@ MYCFNET_ADMIN_PASS=change-this-password
 仓库已带 GitHub Actions 构建工作流：
 
 - 推送到 `main` 会自动编译
-- 打 `v*` 标签会自动编译
+- 打 `v*` 标签会自动创建 GitHub Release 并上传编译产物
 - 也可以在 GitHub Actions 页面手动触发
 
-当前默认产物：
+`main` 分支默认构建产物：
 
 - `mycfnet-linux-amd64`
 - `mycfnet-linux-arm64`
 
-编译完成后，可以直接从 Actions 的 Artifacts 下载二进制，再上传到 VPS 运行。
+发版时默认上传到 Releases 的压缩包：
+
+- `mycfnet-vX.Y.Z-linux-amd64.tar.gz`
+- `mycfnet-vX.Y.Z-linux-arm64.tar.gz`
+
+推荐发版方式：
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+推送标签后，GitHub 会自动：
+
+- 编译 Linux 二进制
+- 打包 `.env.example`、`README.md`、`data` 里的基础数据文件
+- 创建对应版本的 Release
+- 把压缩包挂到 Release 页面
