@@ -77,3 +77,18 @@ MYCFNET_ADMIN_PASS=change-this-password
 - `locations.json` 是 Cloudflare 站点代码映射，不是 IP 数据库
 - 候选 IP 最好使用你自己的 `ips-v4.txt` / `ips-v6.txt`
 - 如果目标站点返回头里没有 `CF-RAY`，则无法准确标注 colo
+
+## GitHub 编译
+
+仓库已带 GitHub Actions 构建工作流：
+
+- 推送到 `main` 会自动编译
+- 打 `v*` 标签会自动编译
+- 也可以在 GitHub Actions 页面手动触发
+
+当前默认产物：
+
+- `mycfnet-linux-amd64`
+- `mycfnet-linux-arm64`
+
+编译完成后，可以直接从 Actions 的 Artifacts 下载二进制，再上传到 VPS 运行。
